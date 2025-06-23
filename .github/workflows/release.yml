@@ -36,12 +36,12 @@ jobs:
         run: |
           LATEST_TAG=$(git tag --sort=-creatordate | head -n 1)
           echo "Latest tag: $LATEST_TAG"
-          
+
           # Extract Major, Minor, Patch
           IFS='.' read -r MAJOR MINOR PATCH <<<"${LATEST_TAG//v/}"
           INCREMENT=${{ github.event.inputs.version }}
           echo "Updating : $INCREMENT version"
-          
+
           case "$INCREMENT" in
             major) ((MAJOR++)); MINOR=0; PATCH=0 ;;
             minor) ((MINOR++)); PATCH=0 ;;
@@ -50,7 +50,7 @@ jobs:
 
           NEW_TAG="v$MAJOR.$MINOR.$PATCH"
           echo "Pushing this tag: $NEW_TAG"
-          
+
           git tag -a "$NEW_TAG" -m "Release $NEW_TAG"
           git push origin "$NEW_TAG"
 
@@ -75,7 +75,7 @@ jobs:
           PREVIOUS_TAG=$(git tag --sort=-creatordate | sed -n '2p')
 
           echo "Creating GitHub release for $LATEST_TAG from previous release $PREVIOUS_TAG"
-          
+
           gh release create "$LATEST_TAG" \
             --title "Release $LATEST_TAG" \
             --generate-notes \
@@ -93,7 +93,7 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
-    
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
