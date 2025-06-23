@@ -142,3 +142,6 @@ jobs:
     uses: ./.github/workflows/generate_changelog.yml
     with:
       tag: ${{ needs.versioning.outputs.new_tag }}
+    permissions:
+      contents: write
+      pull-requests: write
