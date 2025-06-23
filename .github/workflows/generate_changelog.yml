@@ -16,9 +16,6 @@ on:
 jobs:
   generate-changelog:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write-all # Allow writing to the repository for creating PRs
-      pull-requests: write # Allow creating pull requests
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4

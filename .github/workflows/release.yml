@@ -147,5 +147,5 @@ jobs:
     with:
       tag: ${{ needs.versioning.outputs.new_tag }}
     permissions:
-      contents: write
+      contents: write-all
       pull-requests: write
