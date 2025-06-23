@@ -1,4 +1,12 @@
 # Changelog
+## [v0.0.3] - 2025-06-23
+
+### Changed
+- chore: update by @Admir Trakic in bdcb48a
+- Fix: add concurrency settings by @Admir Trakic in e2c78b9
+- doc: update CHANGELOG.md for v0.0.2 (#1) by @github-actions[bot] in edccc85
+
+
 ## [v0.0.2] - 2025-06-23
 
 ### Changed
