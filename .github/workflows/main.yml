@@ -1,0 +1,72 @@
+
+# This workflow builds and pushes a Docker image to GitHub Container Registry
+
+name: Publish and Deploy main
+on:
+  workflow_run:
+    workflows: ["Run Tests"]
+    branches: [main]
+    types:
+      - completed
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_TAG: ${{ github.sha }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=schedule,priority=400
+            type=ref,event=branch,priority=600
+            type=ref,event=pr,priority=500
+            type=semver,pattern={{version}},priority=700
+            type=semver,pattern={{major}}.{{minor}},priority=900
+            type=semver,pattern={{major}},priority=800
+            type=sha,priority=1000
+
+      - name: Extract last tag
+        id: tag
+        run: |
+          IFS=',' read -ra TAGS <<< "${{ steps.meta.outputs.tags }}"
+          LAST_INDEX=$((${#TAGS[@]} - 1))
+          echo "last_tag=${TAGS[LAST_INDEX]}" >> $GITHUB_OUTPUT
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
+          load: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.tag.outputs.last_tag }}
+          labels: ${{ steps.meta.outputs.labels }}
+
+      - name: Push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./
+          push: true
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

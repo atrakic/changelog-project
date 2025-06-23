@@ -1,0 +1,18 @@
+name: Run Tests
+
+on: push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - uses: actions/checkout@v4
+
+      # Fake step to simulate a test run
+      - name: Run Tests
+        run: |
+          echo "Running tests..."
