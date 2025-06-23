@@ -58,16 +58,6 @@ jobs:
           LAST_INDEX=$((${#TAGS[@]} - 1))
           echo "last_tag=${TAGS[LAST_INDEX]}" >> $GITHUB_OUTPUT
 
-      - name: Build Docker image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
-          load: true
-          platforms: linux/amd64,linux/arm64
-          tags: ${{ steps.tag.outputs.last_tag }}
-          labels: ${{ steps.meta.outputs.labels }}
-
       - name: Push Docker image
         uses: docker/build-push-action@v6
         with:
