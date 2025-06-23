@@ -3,6 +3,10 @@
 name: Generate Changelog
 
 on:
+  #push:
+  #  tags:
+  #    - 'v*.*.*'
+
   workflow_call:
     inputs:
       tag:
@@ -13,14 +17,14 @@ jobs:
   generate-changelog:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: write-all # Allow writing to the repository for creating PRs
+      pull-requests: write # Allow creating pull requests
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           token: '${{ secrets.GITHUB_TOKEN }}'
-          fetch-depth: 0
+          fetch-depth: 0 # Fetch all history for accurate changelog generation
 
       - name: Generate changelog entry
         env:
@@ -33,6 +37,9 @@ jobs:
           CHANGELOG_FILE="CHANGELOG.md"
           LATEST_TAG="${{ inputs.tag }}"
           PREVIOUS_TAG=$(git tag --sort=-creatordate | sed -n '2p')
+          if [[ -z "$PREVIOUS_TAG" ]]; then
+            PREVIOUS_TAG="0.0.1"
+          fi
 
           CHANGELOG_BRANCH="chore/$LATEST_TAG"
           git checkout -b "$CHANGELOG_BRANCH"
@@ -78,3 +85,9 @@ jobs:
             --body "This PR updates the changelog for release $LATEST_TAG." \
             --base main \
             --head "$CHANGELOG_BRANCH"
+
+# Example release pipeline trigger:
+#
+# TAG="v0.0.1"
+# git tag "$TAG" -m "Release version: $TAG"
+# git push origin --tags
